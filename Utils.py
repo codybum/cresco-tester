@@ -3,7 +3,7 @@ import docker
 
 def isStarted(container):
     isStarted = False
-    startString = "[agent: io.cresco.agent.core][o.c.StaticPluginLoader] Starting SYSINFO : Status Active: true Status State: GLOBAL'"
+    startString = "[agent: io.cresco.agent.core][o.c.StaticPluginLoader] Starting SYSINFO"
 
     while (not isStarted):
         for line in container.logs(stream=True):
@@ -41,7 +41,7 @@ def startGlobal():
     global_container = client.containers.run(cresco_image, environment=global_controller_env, ports=global_controller_ports, detach=True, auto_remove=True)
     print("Starting Global Controller")
     if isStarted(global_container):
-        print("Global Controller Started")
+        print("Global Controller Started ID: " + global_container.id)
         # global_container.stop()
 
     return global_container.id
@@ -52,7 +52,7 @@ def startAgent(controllerIP):
     cresco_image = "docker.io/crescoedgecomputing/quickstart"
     # global_controller_env = ["CRESCO_region_name=test", "CRESCO_agent_name=global"]
 
-    global_controller_env = {
+    agent_controller_env = {
         "CRESCO_regionname": "global-region",
         "CRESCO_agentname": "agent-controller",
         "regional_controller_host": controllerIP,
@@ -62,13 +62,13 @@ def startAgent(controllerIP):
         "CRESCO_discovery_secret_agent": "asec"
     }
 
-    global_container = client.containers.run(cresco_image, environment=global_controller_env, detach=True, auto_remove=True)
-    print("Starting Global Controller")
-    if isStarted(global_container):
-        print("Global Controller Started")
+    agent_container = client.containers.run(cresco_image, environment=agent_controller_env, detach=True, auto_remove=True)
+    print("Starting Agent Controller")
+    if isStarted(agent_container):
+        print("Agent Controller Started ID: " + agent_container.id)
         # global_container.stop()
 
-    return global_container.id
+    return agent_container.id
 
 def getContainterIP(container_id):
     client = docker.from_env()
@@ -137,13 +137,22 @@ def getStatus(pipeline_id):
             #print(pipeline['status_code'])
             return pipeline['status_code']
 
-def delCADL(pipeline_id):
+def delCADL(pipeline_id, block):
 
     import requests
     url = 'http://localhost:8181/dashboard/applications/delete/' + pipeline_id
-    print(url)
+    #print(url)
     response = requests.get(url=url,headers={'Content-Type': 'application/x-www-form-urlencoded', "X-Auth-API-Service-Key": "BDB"})
-    print(response.status_code)
-    print(response.text)
+    #print(response.status_code)
+    #print(response.text)
     #json_response = response.json()
     #print(json_response)
+    status = response.status_code
+    response.close()
+
+    if status != 200:
+        print("Error uploading addCADL")
+
+    if block:
+        while getStatus(pipeline_id) != None:
+            time.sleep(.5)
