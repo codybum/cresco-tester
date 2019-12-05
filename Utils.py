@@ -1,7 +1,7 @@
-import time
-import docker
+
 
 def isStarted(container):
+    import docker
     isStarted = False
     startString = "[agent: io.cresco.agent.core][o.c.StaticPluginLoader] Starting SYSINFO"
 
@@ -18,6 +18,7 @@ def isStarted(container):
 
 
 def startGlobal():
+    import docker
     client = docker.from_env()
 
     cresco_image = "docker.io/crescoedgecomputing/quickstart"
@@ -47,6 +48,7 @@ def startGlobal():
     return global_container.id
 
 def startAgent(controllerIP):
+    import docker
     client = docker.from_env()
 
     cresco_image = "docker.io/crescoedgecomputing/quickstart"
@@ -71,10 +73,14 @@ def startAgent(controllerIP):
     return agent_container.id
 
 def getContainterIP(container_id):
+    import docker
     client = docker.from_env()
     return client.containers.get(container_id).attrs['NetworkSettings']['IPAddress']
 
 def stopContainter(container_id):
+    import docker
+    import time
+
     client = docker.from_env()
     container = client.containers.get(container_id)
     container.stop()
@@ -84,9 +90,9 @@ def stopContainter(container_id):
         print("Waiting on container " + container_id + " to stop : status=" + container.status)
 
 def uploadPlugin():
-    jarfile = "filerepo-1.0-SNAPSHOT.jar"
-
     import requests
+
+    jarfile = "filerepo-1.0-SNAPSHOT.jar"
 
     data = open(jarfile, 'rb').read()
     res = requests.post(url='http://localhost:8181/dashboard/plugins/uploadplugin',
@@ -102,10 +108,10 @@ def uploadPlugin():
 
 
 def addCADL(CADL, block):
+    import requests
+    import time
 
     data = {"tenant_id": "0", "pipeline": CADL}
-
-    import requests
 
     res = requests.post(url='http://localhost:8181/dashboard/applications/add',
                         data=data,
@@ -125,8 +131,8 @@ def addCADL(CADL, block):
     return pipeline_id
 
 def getStatus(pipeline_id):
-
     import requests
+
     response = requests.get(url='http://localhost:8181/dashboard/applications/list',headers={'Content-Type': 'application/x-www-form-urlencoded', "X-Auth-API-Service-Key": "BDB"})
     #print(response.status_code)
     #print(response.json())
@@ -138,8 +144,9 @@ def getStatus(pipeline_id):
             return pipeline['status_code']
 
 def delCADL(pipeline_id, block):
-
     import requests
+    import time
+
     url = 'http://localhost:8181/dashboard/applications/delete/' + pipeline_id
     #print(url)
     response = requests.get(url=url,headers={'Content-Type': 'application/x-www-form-urlencoded', "X-Auth-API-Service-Key": "BDB"})
