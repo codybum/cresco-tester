@@ -25,7 +25,10 @@ def startGlobal():
     global_controller_env = {
         "CRESCO_regionname": "global-region",
         "CRESCO_agentname": "global-controller",
-        "CRESCO_is_global": "true"
+        "CRESCO_is_global": "true",
+        "CRESCO_discovery_secret_global": "gsec",
+        "CRESCO_discovery_secret_region": "rsec",
+        "CRESCO_discovery_secret_agent":  "asec"
     }
 
     global_controller_ports = {
@@ -53,7 +56,10 @@ def startAgent(controllerIP):
         "CRESCO_regionname": "global-region",
         "CRESCO_agentname": "agent-controller",
         "regional_controller_host": controllerIP,
-        "CRESCO_is_agent": "true"
+        "CRESCO_is_agent": "true",
+        "CRESCO_discovery_secret_global": "gsec",
+        "CRESCO_discovery_secret_region": "rsec",
+        "CRESCO_discovery_secret_agent": "asec"
     }
 
     global_container = client.containers.run(cresco_image, environment=global_controller_env, detach=True, auto_remove=True)
