@@ -1,46 +1,20 @@
 
 import Utils
+import time
 
 #global_controller_id = Utils.startGlobal()
 #print(Utils.getContainterIP(global_controller_id))
 #Utils.stopContainter(global_controller_id)
-#Utils.startAgent("127.0.0.1")
+#agent_controller_id = Utils.startAgent("127.0.0.1")
+
+#if(Utils.uploadPlugin()):
+#    print("Plugin Uploaded to Global Controller")
+
+CADL = "{\"pipeline_id\": \"0\",\"pipeline_name\": \"singleapp\",\"nodes\": [{\"type\": \"dummy\",\"node_name\": \"Plugin 0\",\"node_id\": 0,\"isSource\": false,\"workloadUtil\": 0,\"params\": {\"pluginname\": \"io.cresco.filerepo\",\"jarfile\": \"ec9245ed-5406-4d65-80e1-572df888589d\",\"version\": \"1.0.0.SNAPSHOT-20191204-1922\",\"md5\": \"ac216b18a81f616e0bb6f9d21f274713\",\"location_region\": \"global-region\",\"location_agent\": \"global-controller\"}}],\"edges\": []}"
+
+pipeline_id = Utils.addCADL(CADL, True)
+print("Plugin Uploaded Application to Global Controller : Id :" + pipeline_id)
 
 
 
-import http.client, urllib.parse
-import requests
-
-data = open('/Users/cody/IdeaProjects/agent/mysql-connector-java-8.0.13.jar', 'rb').read()
-res = requests.post(url='http://localhost:8181//dashboard/plugins/uploadplugin',
-                    data=data,
-                    headers={'Content-Type': 'application/java-archive',"X-Auth-API-Service-Key":"BDB"})
-
-# let's check if what we sent is what we intended to send...
-import json
-import base64
-
-assert base64.b64decode(res.json()['data'][len('data:application/octet-stream;base64,'):]) == data
-
-
-'''
-fin = open('/Users/cody/IdeaProjects/agent/mysql-connector-java-8.0.13.jar', 'rb').read()
-params = urllib.parse.urlencode({'@number': 12524, '@type': 'issue', '@action': 'show'})
-headers = {"Content-type": "application/x-java-archive","Accept": "application/java-archive", "X-Auth-API-Service-Key":"BDB"}
-conn = http.client.HTTPConnection("localhost",8181)
-conn.request("POST", "/dashboard/plugins/uploadplugin", fin, headers)
-response = conn.getresponse()
-print(response.status, response.reason)
-data = response.read()
-conn.close()
-
-
-conn = http.client.HTTPConnection("localhost",8181)
-headers = {"X-Auth-API-Service-Key":"BDB"}
-conn.request("GET", "/dashboard", headers={'X-Auth-API-Service-Key':'BDB'})
-r1 = conn.getresponse()
-print(r1.status, r1.reason)
-data1 = r1.read()  # This will return entire content.
-print(data1)
-conn.close()
-'''
+#Utils.delCADL(pipeline_id)

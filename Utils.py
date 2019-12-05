@@ -82,3 +82,68 @@ def stopContainter(container_id):
         container.reload()
         time.sleep(1)
         print("Waiting on container " + container_id + " to stop : status=" + container.status)
+
+def uploadPlugin():
+    jarfile = "filerepo-1.0-SNAPSHOT.jar"
+
+    import requests
+
+    data = open(jarfile, 'rb').read()
+    res = requests.post(url='http://localhost:8181/dashboard/plugins/uploadplugin',
+                        data=data,
+                        headers={'Content-Type': 'application/java-archive', "X-Auth-API-Service-Key": "BDB"})
+    status = res.status_code
+    res.close()
+
+    if status == 200:
+        return True
+    else:
+        return False
+
+
+def addCADL(CADL, block):
+
+    data = {"tenant_id": "0", "pipeline": CADL}
+
+    import requests
+
+    res = requests.post(url='http://localhost:8181/dashboard/applications/add',
+                        data=data,
+                        headers={'Content-Type': 'application/x-www-form-urlencoded', "X-Auth-API-Service-Key": "BDB"})
+    status = res.status_code
+    json_response = res.json()
+    pipeline_id = json_response['gpipeline_id']
+    res.close()
+
+    if status != 200:
+        print("Error uploading addCADL")
+
+    if block:
+        while getStatus(pipeline_id) != "10":
+            time.sleep(.5)
+
+    return pipeline_id
+
+def getStatus(pipeline_id):
+
+    import requests
+    response = requests.get(url='http://localhost:8181/dashboard/applications/list',headers={'Content-Type': 'application/x-www-form-urlencoded', "X-Auth-API-Service-Key": "BDB"})
+    #print(response.status_code)
+    #print(response.json())
+    json_response = response.json()
+    for pipeline in json_response['pipelines']:
+        #print(pipeline)
+        if pipeline['pipeline_id'] == pipeline_id:
+            #print(pipeline['status_code'])
+            return pipeline['status_code']
+
+def delCADL(pipeline_id):
+
+    import requests
+    url = 'http://localhost:8181/dashboard/applications/delete/' + pipeline_id
+    print(url)
+    response = requests.get(url=url,headers={'Content-Type': 'application/x-www-form-urlencoded', "X-Auth-API-Service-Key": "BDB"})
+    print(response.status_code)
+    print(response.text)
+    #json_response = response.json()
+    #print(json_response)
