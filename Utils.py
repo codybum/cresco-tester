@@ -106,6 +106,21 @@ def uploadPlugin():
     else:
         return False
 
+def uploadFile(jarfile):
+    import requests
+
+    data = open(jarfile, 'rb').read()
+    res = requests.post(url='http://localhost:8181/dashboard/plugins/uploadplugin',
+                        data=data,
+                        headers={'Content-Type': 'application/java-archive', "X-Auth-API-Service-Key": "BDB"})
+    status = res.status_code
+    res.close()
+
+    if status == 200:
+        return True
+    else:
+        return False
+
 
 def addCADL(CADL, block):
     import requests
@@ -125,10 +140,27 @@ def addCADL(CADL, block):
         print("Error uploading addCADL")
 
     if block:
-        while getStatus(pipeline_id) != "10":
+        status = getStatus(pipeline_id)
+        while (status != "10") and (status != "50"):
             time.sleep(.5)
+            status = getStatus(pipeline_id)
+            #print(status)
 
     return pipeline_id
+
+
+def getListRepo(pluginname):
+    import requests
+
+    response = requests.get(url='http://localhost:8181/dashboard/plugins/listrepo',headers={'Content-Type': 'application/x-www-form-urlencoded', "X-Auth-API-Service-Key": "BDB"})
+    #print(response.status_code)
+    #print(response.json())
+    json_response = response.json()
+    for pipeline in json_response['plugins']:
+        #print(pipeline)
+        if pipeline['pluginname'] == pluginname:
+            #print(pipeline['pluginname'])
+            return pipeline['jarfile'], pipeline['version'], pipeline['md5']
 
 def getStatus(pipeline_id):
     import requests
@@ -142,6 +174,7 @@ def getStatus(pipeline_id):
         if pipeline['pipeline_id'] == pipeline_id:
             #print(pipeline['status_code'])
             return pipeline['status_code']
+
 
 def delCADL(pipeline_id, block):
     import requests
@@ -163,3 +196,18 @@ def delCADL(pipeline_id, block):
     if block:
         while getStatus(pipeline_id) != None:
             time.sleep(.5)
+
+def deleteAllCADL(block):
+    import requests
+
+    response = requests.get(url='http://localhost:8181/dashboard/applications/list',headers={'Content-Type': 'application/x-www-form-urlencoded', "X-Auth-API-Service-Key": "BDB"})
+    #print(response.status_code)
+    #print(response.json())
+    json_response = response.json()
+    for pipeline in json_response['pipelines']:
+        #print(pipeline)
+        if pipeline['status_code'] == "10":
+            delCADL(pipeline['pipeline_id'], block)
+
+SINGLE_CADL = "{\"pipeline_id\": \"0\",\"pipeline_name\": \"singleapp\",\"nodes\": [{\"type\": \"dummy\",\"node_name\": \"Plugin 0\",\"node_id\": 0,\"isSource\": false,\"workloadUtil\": 0,\"params\": {\"pluginname\": \"io.cresco.filerepo\",\"jarfile\": \"ec9245ed-5406-4d65-80e1-572df888589d\",\"version\": \"1.0.0.SNAPSHOT-20191204-1922\",\"md5\": \"ac216b18a81f616e0bb6f9d21f274713\",\"location_region\": \"global-region\",\"location_agent\": \"global-controller\"}}],\"edges\": []}"
+DOUBLE_CADL = "{\"pipeline_id\": \"0\",\"pipeline_name\": \"singleapp\",\"nodes\": [{\"type\": \"dummy\",\"node_name\": \"Plugin 0\",\"node_id\": 0,\"isSource\": false,\"workloadUtil\": 0,\"params\": {\"pluginname\": \"io.cresco.filerepo\",\"jarfile\": \"ec9245ed-5406-4d65-80e1-572df888589d\",\"version\": \"1.0.0.SNAPSHOT-20191204-1922\",\"md5\": \"ac216b18a81f616e0bb6f9d21f274713\",\"location_region\": \"global-region\",\"location_agent\": \"global-controller\"}},{\"type\": \"dummy\",\"node_name\": \"Plugin 1\",\"node_id\": 1,\"isSource\": false,\"workloadUtil\": 0,\"params\": {\"pluginname\": \"io.cresco.filerepo\",\"jarfile\": \"ec9245ed-5406-4d65-80e1-572df888589d\",\"version\": \"1.0.0.SNAPSHOT-20191204-1922\",\"md5\": \"ac216b18a81f616e0bb6f9d21f274713\",\"location_region\": \"global-region\",\"location_agent\": \"agent-controller\"}}],\"edges\": []}"
