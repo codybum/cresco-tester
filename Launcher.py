@@ -21,9 +21,12 @@ Utils.uploadFile("/Users/cody/IdeaProjects/filerepo/target/filerepo-1.0-SNAPSHOT
 
 jarfile, version, md5 = Utils.getListRepo("io.cresco.filerepo")
 
-app = "{\"pipeline_id\":\"0\",\"pipeline_name\":\"tester\",\"nodes\":[{\"type\":\"dummy\",\"node_name\":\"Plugin0\",\"node_id\":0,\"isSource\":false,\"workloadUtil\":0,\"params\":{\"pluginname\":\"io.cresco.filerepo\",\"jarfile\":" + jarfile +",\"version\":" + version + ",\"md5\":" + md5 +",\"scan_repo\":\"t\",\"scan_dir\":\"\/Users\/cody\/IdeaProjects\/filerepo\/data\",\"location_region\":\"global-region\",\"location_agent\":\"global-controller\"}}],\"edges\":[]}"
+appSingle = "{\"pipeline_id\":\"0\",\"pipeline_name\":\"tester\",\"nodes\":[{\"type\":\"dummy\",\"node_name\":\"Plugin0\",\"node_id\":0,\"isSource\":false,\"workloadUtil\":0,\"params\":{\"pluginname\":\"io.cresco.filerepo\",\"jarfile\":" + jarfile + ",\"version\":" + version + ",\"md5\":" + md5 +",\"scan_repo\":\"t\",\"scan_dir\":\"\/Users\/cody\/IdeaProjects\/filerepo\/data\",\"location_region\":\"global-region\",\"location_agent\":\"global-controller\"}}],\"edges\":[]}"
 
-Utils.addCADL(app,True)
+appDual =   "{\"pipeline_id\":\"0\",\"pipeline_name\":\"testfileapp\",\"nodes\":[{\"type\":\"dummy\",\"node_name\":\"Plugin0\",\"node_id\":0,\"isSource\":false,\"workloadUtil\":0,\"params\":{\"pluginname\":\"io.cresco.filerepo\",\"jarfile\":" + jarfile + ",\"version\":" + version +",\"md5\":" + md5 + ",\"repo\":\"testrepo\",\"scan_dir\":\"\/Users\/cody\/IdeaProjects\/filerepo\/cake\",\"location_region\":\"global-region\",\"location_agent\":\"global-controller\"}},{\"type\":\"dummy\",\"node_name\":\"Plugin1\",\"node_id\":1,\"isSource\":false,\"workloadUtil\":0,\"params\":{\"pluginname\":\"io.cresco.filerepo\",\"jarfile\":" + jarfile + ",\"version\":" + version +",\"md5\":" + md5 +",\"repo\":\"testrepo\",\"repo_dir\":\"\/Users\/cody\/IdeaProjects\/filerepo\/data\",\"location_region\":\"global-region\",\"location_agent\":\"global-controller\"}}],\"edges\":[{\"edge_id\":0,\"node_from\":0,\"node_to\":1,\"params\":{}}]}"
+
+
+Utils.addCADL(appDual,True)
 
 exit(0)
 
